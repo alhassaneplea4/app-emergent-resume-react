@@ -196,16 +196,22 @@ class ContactAPITester:
         rate_limited = False
         
         try:
+            # Use a single session to maintain IP consistency
+            rate_session = requests.Session()
+            
             # Send 6 requests rapidly
             for i in range(6):
-                response = self.session.post(f"{self.base_url}/contact", json=test_data)
+                response = rate_session.post(f"{self.base_url}/contact", json=test_data)
                 
                 if response.status_code == 200:
                     success_count += 1
+                    print(f"   Request {i+1}: SUCCESS (200)")
                 elif response.status_code == 429:
                     rate_limited = True
+                    print(f"   Request {i+1}: RATE LIMITED (429)")
                     # Check for French error message
-                    if 'requêtes' in response.text.lower() or 'minutes' in response.text.lower():
+                    response_text = response.text.lower()
+                    if 'requêtes' in response_text or 'minutes' in response_text or 'trop' in response_text:
                         self.log_test("Rate Limiting", True, 
                                     f"Rate limit triggered after {success_count} requests with French error message")
                         return
@@ -213,15 +219,24 @@ class ContactAPITester:
                         self.log_test("Rate Limiting", False, 
                                     f"Rate limit triggered but no French error message: {response.text}")
                         return
+                else:
+                    print(f"   Request {i+1}: UNEXPECTED ({response.status_code})")
                 
-                time.sleep(0.1)  # Small delay between requests
+                time.sleep(0.2)  # Small delay between requests
             
-            if success_count >= 5 and not rate_limited:
+            # Check results
+            if rate_limited:
+                self.log_test("Rate Limiting", True, 
+                            f"Rate limit working - {success_count} requests succeeded before limiting")
+            elif success_count == 6:
+                # Rate limiting might not be working due to load balancer IP changes
+                # Let's check if it's a configuration issue
                 self.log_test("Rate Limiting", False, 
-                            f"Rate limiting not working - {success_count} requests succeeded")
-            elif success_count < 5:
+                            f"Rate limiting not triggered - all 6 requests succeeded (possible load balancer IP issue)")
+            else:
                 self.log_test("Rate Limiting", False, 
-                            f"Rate limiting too aggressive - only {success_count} requests succeeded")
+                            f"Unexpected behavior - {success_count} requests succeeded, no rate limiting")
+                
         except Exception as e:
             self.log_test("Rate Limiting", False, f"Exception: {str(e)}")
     
