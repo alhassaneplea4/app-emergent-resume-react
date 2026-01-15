@@ -33,18 +33,19 @@ const Contact = () => {
     setIsSubmitting(true);
 
     try {
-      const result = await submitContactForm(formData);
-      if (result.success) {
+      const response = await axios.post(`${BACKEND_URL}/api/contact`, formData);
+      if (response.data.success) {
         toast({
           title: "Succès!",
-          description: result.message,
+          description: response.data.message,
         });
         setFormData({ name: '', email: '', subject: '', message: '' });
       }
     } catch (error) {
+      const errorMessage = error.response?.data?.detail || "Une erreur s'est produite. Veuillez réessayer.";
       toast({
         title: "Erreur",
-        description: "Une erreur s'est produite. Veuillez réessayer.",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
