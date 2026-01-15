@@ -12,7 +12,7 @@ class EmailSender:
         self.smtp_host = "smtp.gmail.com"
         self.smtp_port = 587
         self.smtp_username = os.environ.get('SMTP_USERNAME', 'astronetgn@gmail.com')
-        self.smtp_password = os.environ.get('SMTP_PASSWORD', '')
+        self.smtp_password = os.environ.get('SMTP_PASSWORD', 'vfemtvsydyvaesva')
         self.from_email = self.smtp_username
         self.to_email = self.smtp_username
     
