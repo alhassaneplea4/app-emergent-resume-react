@@ -11,8 +11,12 @@ class EmailSender:
     def __init__(self):
         self.smtp_host = "smtp.gmail.com"
         self.smtp_port = 587
-        self.smtp_username = os.environ.get('SMTP_USERNAME', 'astronetgn@gmail.com')
-        self.smtp_password = os.environ.get('SMTP_PASSWORD', 'vfemtvsydyvaesva')
+        self.smtp_username = os.environ.get('SMTP_USERNAME')
+        self.smtp_password = os.environ.get('SMTP_PASSWORD')
+        
+        if not self.smtp_username or not self.smtp_password:
+            logger.warning("SMTP credentials not configured. Email notifications will be disabled.")
+        
         self.from_email = self.smtp_username
         self.to_email = self.smtp_username
     
