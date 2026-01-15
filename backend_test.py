@@ -160,7 +160,7 @@ class ContactAPITester:
                 
                 # Check if HTML tags were sanitized in MongoDB
                 if self.mongo_client and contact_id:
-                    stored_contact = self.contacts_collection.find_one({'_id': pymongo.ObjectId(contact_id)})
+                    stored_contact = self.contacts_collection.find_one({'_id': ObjectId(contact_id)})
                     if stored_contact:
                         name_clean = '<script>' not in stored_contact['name']
                         subject_clean = '<img' not in stored_contact['subject']
