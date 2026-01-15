@@ -89,8 +89,16 @@ async def get_all_contacts(limit: int = 100, skip: int = 0):
         # Get total count
         total = await db.contacts.count_documents({})
         
-        # Get messages with pagination
-        cursor = db.contacts.find().sort("created_at", -1).skip(skip).limit(limit)
+        # Get messages with pagination and field projection for optimization
+        projection = {
+            "_id": 1,
+            "name": 1,
+            "email": 1,
+            "subject": 1,
+            "message": 1,
+            "created_at": 1
+        }
+        cursor = db.contacts.find({}, projection).sort("created_at", -1).skip(skip).limit(limit)
         messages = await cursor.to_list(length=limit)
         
         # Convert ObjectId to string
