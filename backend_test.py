@@ -75,7 +75,7 @@ class ContactAPITester:
                     # Verify MongoDB storage
                     if self.mongo_client:
                         contact_id = data['id']
-                        stored_contact = self.contacts_collection.find_one({'_id': pymongo.ObjectId(contact_id)})
+                        stored_contact = self.contacts_collection.find_one({'_id': ObjectId(contact_id)})
                         if stored_contact:
                             self.log_test("Valid Contact Submission", True, 
                                         f"Contact saved with ID: {contact_id}, French response received")
